@@ -7,7 +7,7 @@
 Use this URL for the source of the module. See the usage examples below for more details.
 
 ```hcl
-github.com/pbs/terraform-aws-cloudfront-module?ref=3.2.1
+github.com/pbs/terraform-aws-cloudfront-module?ref=x.y.z
 ```
 
 ### Alternative Installation Methods
@@ -24,7 +24,7 @@ Integrate this module like so:
 
 ```hcl
 module "cloudfront" {
-  source = "github.com/pbs/terraform-aws-cloudfront-module?ref=3.2.1"
+  source = "github.com/pbs/terraform-aws-cloudfront-module?ref=x.y.z"
 
   # Required Parameters
   primary_hosted_zone = "example.com"
@@ -56,7 +56,7 @@ module "cloudfront" {
 
 If this repo is added as a subtree, then the version of the module should be close to the version shown here:
 
-`3.2.1`
+`x.y.z`
 
 Note, however that subtrees can be altered as desired within repositories.
 
@@ -72,8 +72,8 @@ Below is automatically generated documentation on this Terraform module using [t
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.2 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.5.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.13.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.0.0 |
 
 ## Providers
 
@@ -108,7 +108,8 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment (sharedtools, dev, staging, qa, prod) | `string` | n/a | yes |
 | <a name="input_organization"></a> [organization](#input\_organization) | Organization using this module. Used to prefix tags so that they are easily identified as being from your organization | `string` | n/a | yes |
-| <a name="input_origins"></a> [origins](#input\_origins) | One or more origins for this distribution. | <pre>list(object({<br>    domain_name         = string<br>    connection_attempts = optional(number)<br>    connection_timeout  = optional(number)<br>    custom_header = optional(object({<br>      name  = string<br>      value = string<br>    }))<br>    custom_origin_config = optional(object({<br>      http_port                = optional(number)<br>      https_port               = optional(number)<br>      origin_keepalive_timeout = optional(number)<br>      origin_protocol_policy   = optional(string)<br>      origin_read_timeout      = optional(number)<br>      origin_ssl_protocols     = optional(list(string))<br>    }))<br>    origin_path      = optional(string)<br>    origin_id        = optional(string)<br>    s3_origin_config = optional(string)<br>    origin_shield = optional(object({<br>      enabled              = optional(bool)<br>      origin_shield_region = optional(string)<br>    }))<br>  }))</pre> | n/a | yes |
+| <a name="input_origins"></a> [origins](#input\_origins) | One or more origins for this distribution. | <pre>list(object({<br/>    domain_name         = string<br/>    connection_attempts = optional(number)<br/>    connection_timeout  = optional(number)<br/>    custom_header = optional(object({<br/>      name  = string<br/>      value = string<br/>    }))<br/>    custom_origin_config = optional(object({<br/>      http_port                = optional(number)<br/>      https_port               = optional(number)<br/>      origin_keepalive_timeout = optional(number)<br/>      origin_protocol_policy   = optional(string)<br/>      origin_read_timeout      = optional(number)<br/>      origin_ssl_protocols     = optional(list(string))<br/>    }))<br/>    origin_path      = optional(string)<br/>    origin_id        = optional(string)<br/>    s3_origin_config = optional(string)<br/>    origin_shield = optional(object({<br/>      enabled              = optional(bool)<br/>      origin_shield_region = optional(string)<br/>    }))<br/>  }))</pre> | n/a | yes |
+| <a name="input_owner"></a> [owner](#input\_owner) | Tag used to group resources according to product | `string` | n/a | yes |
 | <a name="input_primary_hosted_zone"></a> [primary\_hosted\_zone](#input\_primary\_hosted\_zone) | Name of the primary hosted zone for DNS. e.g. primary\_hosted\_zone = example.org --> service.example.org. | `string` | n/a | yes |
 | <a name="input_product"></a> [product](#input\_product) | Tag used to group resources according to product | `string` | n/a | yes |
 | <a name="input_repo"></a> [repo](#input\_repo) | Tag used to point to the repo using this module | `string` | n/a | yes |
@@ -120,10 +121,10 @@ No modules.
 | <a name="input_compress"></a> [compress](#input\_compress) | (optional) gzip compress response | `bool` | `true` | no |
 | <a name="input_create_cname"></a> [create\_cname](#input\_create\_cname) | (optional) create CNAME(s) that point to CloudFront distribution | `bool` | `true` | no |
 | <a name="input_custom_error_response"></a> [custom\_error\_response](#input\_custom\_error\_response) | (optional) set of one or more custom error response elements | `list(any)` | `[]` | no |
-| <a name="input_default_behavior_allowed_methods"></a> [default\_behavior\_allowed\_methods](#input\_default\_behavior\_allowed\_methods) | (optional) default behavior allowed methods | `list(string)` | <pre>[<br>  "GET",<br>  "HEAD"<br>]</pre> | no |
-| <a name="input_default_behavior_cached_methods"></a> [default\_behavior\_cached\_methods](#input\_default\_behavior\_cached\_methods) | (optional) default behavior cached methods | `list(string)` | <pre>[<br>  "GET",<br>  "HEAD"<br>]</pre> | no |
-| <a name="input_default_behavior_function_association"></a> [default\_behavior\_function\_association](#input\_default\_behavior\_function\_association) | (optional) default behavior function association | <pre>object({<br>    event_type   = string<br>    function_arn = string<br>  })</pre> | `null` | no |
-| <a name="input_default_behavior_lambda_function_association"></a> [default\_behavior\_lambda\_function\_association](#input\_default\_behavior\_lambda\_function\_association) | (optional) default behavior lambda function association | <pre>object({<br>    event_type   = string<br>    lambda_arn   = string<br>    include_body = optional(bool)<br>  })</pre> | `null` | no |
+| <a name="input_default_behavior_allowed_methods"></a> [default\_behavior\_allowed\_methods](#input\_default\_behavior\_allowed\_methods) | (optional) default behavior allowed methods | `list(string)` | <pre>[<br/>  "GET",<br/>  "HEAD"<br/>]</pre> | no |
+| <a name="input_default_behavior_cached_methods"></a> [default\_behavior\_cached\_methods](#input\_default\_behavior\_cached\_methods) | (optional) default behavior cached methods | `list(string)` | <pre>[<br/>  "GET",<br/>  "HEAD"<br/>]</pre> | no |
+| <a name="input_default_behavior_function_association"></a> [default\_behavior\_function\_association](#input\_default\_behavior\_function\_association) | (optional) default behavior function association | <pre>object({<br/>    event_type   = string<br/>    function_arn = string<br/>  })</pre> | `null` | no |
+| <a name="input_default_behavior_lambda_function_association"></a> [default\_behavior\_lambda\_function\_association](#input\_default\_behavior\_lambda\_function\_association) | (optional) default behavior lambda function association | <pre>object({<br/>    event_type   = string<br/>    lambda_arn   = string<br/>    include_body = optional(bool)<br/>  })</pre> | `null` | no |
 | <a name="input_default_cache_policy_id"></a> [default\_cache\_policy\_id](#input\_default\_cache\_policy\_id) | (optional) policy id for the cache policy of the default cache behavior. If null, a lookup on default\_cache\_policy\_name will be attempted. | `string` | `null` | no |
 | <a name="input_default_cache_policy_name"></a> [default\_cache\_policy\_name](#input\_default\_cache\_policy\_name) | (optional) policy name for the cache policy of the default cache behavior | `string` | `"Managed-CachingDisabled"` | no |
 | <a name="input_default_origin_id"></a> [default\_origin\_id](#input\_default\_origin\_id) | (optional) default origin origin id | `string` | `null` | no |
@@ -136,16 +137,16 @@ No modules.
 | <a name="input_enabled"></a> [enabled](#input\_enabled) | (optional) enable cloudfront | `bool` | `true` | no |
 | <a name="input_http_version"></a> [http\_version](#input\_http\_version) | (optional) The maximum HTTP version to support on the distribution. Allowed values are http1.1, http2, http2and3 and http3. | `string` | `"http2and3"` | no |
 | <a name="input_is_ipv6_enabled"></a> [is\_ipv6\_enabled](#input\_is\_ipv6\_enabled) | (optional) enable ipv6 | `bool` | `true` | no |
-| <a name="input_logging_config"></a> [logging\_config](#input\_logging\_config) | (optional) logging configuration that controls how logs are written to your distribution (maximum one) | <pre>list(object({<br>    logging_bucket  = string<br>    logging_prefix  = optional(string)<br>    logging_cookies = optional(bool, false)<br>  }))</pre> | `[]` | no |
+| <a name="input_logging_config"></a> [logging\_config](#input\_logging\_config) | (optional) logging configuration that controls how logs are written to your distribution (maximum one) | <pre>list(object({<br/>    logging_bucket  = string<br/>    logging_prefix  = optional(string)<br/>    logging_cookies = optional(bool, false)<br/>  }))</pre> | `[]` | no |
 | <a name="input_minimum_protocol_version"></a> [minimum\_protocol\_version](#input\_minimum\_protocol\_version) | (optional) tls minimum protocol version | `string` | `"TLSv1.2_2021"` | no |
 | <a name="input_name"></a> [name](#input\_name) | (optional) name of the distribution. Used as the default for DNS creation when configured | `string` | `null` | no |
-| <a name="input_ordered_cache_behavior"></a> [ordered\_cache\_behavior](#input\_ordered\_cache\_behavior) | (optional) an ordered list of cache behaviors resource for this distribution | <pre>list(object({<br>    path_pattern     = string<br>    target_origin_id = string<br><br>    cache_policy_id            = string<br>    origin_request_policy_id   = optional(string)<br>    response_headers_policy_id = optional(string)<br><br>    allowed_methods           = optional(list(string), ["GET", "HEAD"])<br>    cached_methods            = optional(list(string), ["GET", "HEAD"])<br>    compress                  = optional(bool, true)<br>    field_level_encryption_id = optional(string)<br>    viewer_protocol_policy    = optional(string, "redirect-to-https")<br>    smooth_streaming          = optional(bool)<br>    trusted_key_groups        = optional(list(string))<br>    trusted_signers           = optional(list(string))<br><br>    lambda_function_associations = optional(list(object({<br>      event_type   = optional(string, "viewer-request")<br>      lambda_arn   = string<br>      include_body = optional(bool, false)<br>    })))<br>    function_associations = optional(list(object({<br>      event_type   = optional(string, "viewer-request")<br>      function_arn = string<br>    })))<br>  }))</pre> | `[]` | no |
+| <a name="input_ordered_cache_behavior"></a> [ordered\_cache\_behavior](#input\_ordered\_cache\_behavior) | (optional) an ordered list of cache behaviors resource for this distribution | <pre>list(object({<br/>    path_pattern     = string<br/>    target_origin_id = string<br/><br/>    cache_policy_id            = string<br/>    origin_request_policy_id   = optional(string)<br/>    response_headers_policy_id = optional(string)<br/><br/>    allowed_methods           = optional(list(string), ["GET", "HEAD"])<br/>    cached_methods            = optional(list(string), ["GET", "HEAD"])<br/>    compress                  = optional(bool, true)<br/>    field_level_encryption_id = optional(string)<br/>    viewer_protocol_policy    = optional(string, "redirect-to-https")<br/>    smooth_streaming          = optional(bool)<br/>    trusted_key_groups        = optional(list(string))<br/>    trusted_signers           = optional(list(string))<br/><br/>    lambda_function_associations = optional(list(object({<br/>      event_type   = optional(string, "viewer-request")<br/>      lambda_arn   = string<br/>      include_body = optional(bool, false)<br/>    })))<br/>    function_associations = optional(list(object({<br/>      event_type   = optional(string, "viewer-request")<br/>      function_arn = string<br/>    })))<br/>  }))</pre> | `[]` | no |
 | <a name="input_price_class"></a> [price\_class](#input\_price\_class) | (optional) price class for the distribution | `string` | `"PriceClass_100"` | no |
 | <a name="input_restriction_locations"></a> [restriction\_locations](#input\_restriction\_locations) | (optional) locations to use in access restriction (whitelist or blacklist based on restriction\_type) | `list(string)` | `[]` | no |
 | <a name="input_restriction_type"></a> [restriction\_type](#input\_restriction\_type) | (optional) type of restriction for CDN | `string` | `"none"` | no |
 | <a name="input_ssl_support_method"></a> [ssl\_support\_method](#input\_ssl\_support\_method) | (optional) ssl support method (one of vip or sni-only) | `string` | `"sni-only"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Extra tags | `map(string)` | `{}` | no |
-| <a name="input_v2_logging"></a> [v2\_logging](#input\_v2\_logging) | (optional) enable v2 logging for the distribution | <pre>object({<br>    s3_bucket_arn               = string<br>    s3_prefix                   = optional(string, "cloudfront_access_logs")<br>    suffix_path                 = optional(string, "/{accountid}/{distributionid}/{yyyy}/{MM}/{dd}/{HH}/")<br>    output_format               = optional(string, "parquet")<br>    enable_hive_compatible_path = optional(bool, true)<br>    field_delimiter             = optional(string)<br>    record_fields               = optional(list(string))<br>  })</pre> | `null` | no |
+| <a name="input_v2_logging"></a> [v2\_logging](#input\_v2\_logging) | (optional) enable v2 logging for the distribution | <pre>object({<br/>    s3_bucket_arn               = string<br/>    s3_prefix                   = optional(string, "cloudfront_access_logs")<br/>    suffix_path                 = optional(string, "/{accountid}/{distributionid}/{yyyy}/{MM}/{dd}/{HH}/")<br/>    output_format               = optional(string, "parquet")<br/>    enable_hive_compatible_path = optional(bool, true)<br/>    field_delimiter             = optional(string)<br/>    record_fields               = optional(list(string))<br/>  })</pre> | `null` | no |
 | <a name="input_viewer_protocol_policy"></a> [viewer\_protocol\_policy](#input\_viewer\_protocol\_policy) | (optional) viewer protocol policy | `string` | `"redirect-to-https"` | no |
 | <a name="input_web_acl_id"></a> [web\_acl\_id](#input\_web\_acl\_id) | (optional) unique identifier that specifies the AWS WAF web ACL | `string` | `null` | no |
 

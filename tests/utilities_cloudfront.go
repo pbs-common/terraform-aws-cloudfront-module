@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 	"time"
-
+    "net/http"
 	httpHelper "github.com/gruntwork-io/terratest/modules/http-helper"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
@@ -25,6 +25,7 @@ func testCloudFront(t *testing.T, variant string) {
 	terraformOptions := &terraform.Options{
 		TerraformDir: terraformDir,
 		LockTimeout:  "5m",
+		Upgrade:      true,
 	}
 
 	defer func() {
@@ -67,9 +68,24 @@ func testCloudFront(t *testing.T, variant string) {
 	indexURL := fmt.Sprintf("https://%s/", domainName)
 	expectedIndex, err := getFileAsString(t, "nginx-index.html")
 
-	if err != nil {
-		t.Fatal(err)
+
+    if variant == "function" {
+	    // Using 2 trailing slashes because the associated cloudfront function will remove one
+	    indexURL = fmt.Sprintf("https://%s//", domainName)
+	    httpHelper.HttpGetWithRetry(t, indexURL, nil, 200, expectedIndex, 300, 3*time.Second)
+	    resp, _ := http.Get(indexURL)
+        defer resp.Body.Close()
+        value := resp.Header.Get("testHeader")
+        assert.Equal(t, value, "testValue")
+        terraformOptions = &terraform.Options{
+            TerraformDir: terraformDir,
+            LockTimeout:  "20m",
+            Upgrade:      true,
+        }
 	}
 
+    if err != nil {
+		t.Fatal(err)
+	}
 	httpHelper.HttpGetWithRetry(t, indexURL, nil, 200, expectedIndex, 300, 3*time.Second)
 }
