@@ -8,13 +8,27 @@ module "cloudfront" {
     s3_origin_config = module.s3.name
   }]
 
+  default_behavior_function_association = {
+    event_type   = "viewer-request"
+    function_arn = aws_cloudfront_function.function.arn
+  }
+
+  default_behavior_lambda_function_association = {
+    event_type   = "origin-response"
+    lambda_arn   = aws_lambda_function.add_header.qualified_arn
+    include_body = false
+  }
+
   default_root_object = "index.html"
 
   organization = var.organization
   environment  = var.environment
   product      = var.product
+  owner        = var.owner
   repo         = var.repo
 }
+
+
 
 resource "aws_cloudfront_function" "function" {
   name    = "trim-trialing-slashes"
