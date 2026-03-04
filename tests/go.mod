@@ -24,7 +24,6 @@ require (
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/mattn/go-zglob v0.0.6 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
-	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/tmccombs/hcl2json v0.6.8 // indirect
