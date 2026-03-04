@@ -1,5 +1,5 @@
 module "cache_policy" {
-  source = "github.com/pbs/terraform-aws-cloudfront-cache-policy-module?ref=0.0.1"
+  source = "github.com/pbs/terraform-aws-cloudfront-cache-policy-module?ref=1.0.0"
 
   product = var.product
 }
@@ -46,6 +46,7 @@ module "cloudfront" {
   organization = var.organization
   environment  = var.environment
   product      = var.product
+  owner        = var.owner
   repo         = var.repo
 }
 
