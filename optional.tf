@@ -160,9 +160,19 @@ variable "ordered_cache_behavior" {
     path_pattern     = string
     target_origin_id = string
 
-    cache_policy_id            = string
+    cache_policy_id            = optional(string)
     origin_request_policy_id   = optional(string)
     response_headers_policy_id = optional(string)
+
+    forwarded_values = optional(object({
+      query_string            = bool
+      query_string_cache_keys = optional(list(string))
+      headers                 = optional(list(string))
+      cookies = object({
+        forward           = string
+        whitelisted_names = optional(list(string))
+      })
+    }))
 
     allowed_methods           = optional(list(string), ["GET", "HEAD"])
     cached_methods            = optional(list(string), ["GET", "HEAD"])
@@ -172,6 +182,10 @@ variable "ordered_cache_behavior" {
     smooth_streaming          = optional(bool)
     trusted_key_groups        = optional(list(string))
     trusted_signers           = optional(list(string))
+
+    min_ttl     = optional(number)
+    default_ttl = optional(number)
+    max_ttl     = optional(number)
 
     lambda_function_associations = optional(list(object({
       event_type   = optional(string, "viewer-request")
@@ -197,8 +211,38 @@ variable "dns_evaluate_target_health" {
   type        = bool
 }
 
+variable "default_forwarded_values" {
+  description = "(optional) forwarded values for the default cache behavior. Use this for legacy configurations that cannot use cache policies. Mutually exclusive with default_cache_policy_id/default_cache_policy_name."
+  default     = null
+  type = object({
+    query_string            = bool
+    query_string_cache_keys = optional(list(string))
+    headers                 = optional(list(string))
+    cookies = object({
+      forward           = string
+      whitelisted_names = optional(list(string))
+    })
+  })
+}
+variable "default_min_ttl" {
+  description = "(optional) minimum TTL for the default cache behavior. Only used with default_forwarded_values."
+  default     = 0
+  type        = number
+}
+
+variable "default_default_ttl" {
+  description = "(optional) default TTL for the default cache behavior. Only used with default_forwarded_values."
+  default     = 86400
+  type        = number
+}
+
+variable "default_max_ttl" {
+  description = "(optional) maximum TTL for the default cache behavior. Only used with default_forwarded_values."
+  default     = 31536000
+  type        = number
+}
 variable "default_cache_policy_id" {
-  description = "(optional) policy id for the cache policy of the default cache behavior. If null, a lookup on default_cache_policy_name will be attempted."
+  description = "(optional) policy id for the cache policy of the default cache behavior. If null, a lookup on default_cache_policy_name will be attempted. Ignored when default_forwarded_values is set."
   default     = null
   type        = string
 }
