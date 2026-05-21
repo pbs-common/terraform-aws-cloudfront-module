@@ -7,7 +7,7 @@
 Use this URL for the source of the module. See the usage examples below for more details.
 
 ```hcl
-github.com/pbs/terraform-aws-cloudfront-module?ref=4.0.1
+github.com/pbs/terraform-aws-cloudfront-module?ref=x.y.z
 ```
 
 ### Alternative Installation Methods
@@ -24,7 +24,7 @@ Integrate this module like so:
 
 ```hcl
 module "cloudfront" {
-  source = "github.com/pbs/terraform-aws-cloudfront-module?ref=4.0.1"
+  source = "github.com/pbs/terraform-aws-cloudfront-module?ref=x.y.z"
 
   # Required Parameters
   primary_hosted_zone = "example.com"
@@ -56,7 +56,7 @@ module "cloudfront" {
 
 If this repo is added as a subtree, then the version of the module should be close to the version shown here:
 
-`4.0.1`
+`x.y.z`
 
 Note, however that subtrees can be altered as desired within repositories.
 
@@ -79,7 +79,7 @@ Below is automatically generated documentation on this Terraform module using [t
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.34.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.45.0 |
 
 ## Modules
 
@@ -125,8 +125,12 @@ No modules.
 | <a name="input_default_behavior_cached_methods"></a> [default\_behavior\_cached\_methods](#input\_default\_behavior\_cached\_methods) | (optional) default behavior cached methods | `list(string)` | <pre>[<br/>  "GET",<br/>  "HEAD"<br/>]</pre> | no |
 | <a name="input_default_behavior_function_association"></a> [default\_behavior\_function\_association](#input\_default\_behavior\_function\_association) | (optional) default behavior function association | <pre>object({<br/>    event_type   = string<br/>    function_arn = string<br/>  })</pre> | `null` | no |
 | <a name="input_default_behavior_lambda_function_association"></a> [default\_behavior\_lambda\_function\_association](#input\_default\_behavior\_lambda\_function\_association) | (optional) default behavior lambda function association | <pre>object({<br/>    event_type   = string<br/>    lambda_arn   = string<br/>    include_body = optional(bool)<br/>  })</pre> | `null` | no |
-| <a name="input_default_cache_policy_id"></a> [default\_cache\_policy\_id](#input\_default\_cache\_policy\_id) | (optional) policy id for the cache policy of the default cache behavior. If null, a lookup on default\_cache\_policy\_name will be attempted. | `string` | `null` | no |
+| <a name="input_default_cache_policy_id"></a> [default\_cache\_policy\_id](#input\_default\_cache\_policy\_id) | (optional) policy id for the cache policy of the default cache behavior. If null, a lookup on default\_cache\_policy\_name will be attempted. Ignored when default\_forwarded\_values is set. | `string` | `null` | no |
 | <a name="input_default_cache_policy_name"></a> [default\_cache\_policy\_name](#input\_default\_cache\_policy\_name) | (optional) policy name for the cache policy of the default cache behavior | `string` | `"Managed-CachingDisabled"` | no |
+| <a name="input_default_default_ttl"></a> [default\_default\_ttl](#input\_default\_default\_ttl) | (optional) default TTL for the default cache behavior. Only used with default\_forwarded\_values. | `number` | `86400` | no |
+| <a name="input_default_forwarded_values"></a> [default\_forwarded\_values](#input\_default\_forwarded\_values) | (optional) forwarded values for the default cache behavior. Use this for legacy configurations that cannot use cache policies. Mutually exclusive with default\_cache\_policy\_id/default\_cache\_policy\_name. | <pre>object({<br/>    query_string            = bool<br/>    query_string_cache_keys = optional(list(string))<br/>    headers                 = optional(list(string))<br/>    cookies = object({<br/>      forward           = string<br/>      whitelisted_names = optional(list(string))<br/>    })<br/>  })</pre> | `null` | no |
+| <a name="input_default_max_ttl"></a> [default\_max\_ttl](#input\_default\_max\_ttl) | (optional) maximum TTL for the default cache behavior. Only used with default\_forwarded\_values. | `number` | `31536000` | no |
+| <a name="input_default_min_ttl"></a> [default\_min\_ttl](#input\_default\_min\_ttl) | (optional) minimum TTL for the default cache behavior. Only used with default\_forwarded\_values. | `number` | `0` | no |
 | <a name="input_default_origin_id"></a> [default\_origin\_id](#input\_default\_origin\_id) | (optional) default origin origin id | `string` | `null` | no |
 | <a name="input_default_origin_request_policy_id"></a> [default\_origin\_request\_policy\_id](#input\_default\_origin\_request\_policy\_id) | (optional) policy id for the origin request policy of the default cache behavior. If null, a lookup on default\_origin\_request\_policy\_name will be attempted. | `string` | `null` | no |
 | <a name="input_default_origin_request_policy_name"></a> [default\_origin\_request\_policy\_name](#input\_default\_origin\_request\_policy\_name) | (optional) policy name for the origin request policy of the default cache behavior | `string` | `null` | no |
@@ -140,7 +144,7 @@ No modules.
 | <a name="input_logging_config"></a> [logging\_config](#input\_logging\_config) | (optional) logging configuration that controls how logs are written to your distribution (maximum one) | <pre>list(object({<br/>    logging_bucket  = string<br/>    logging_prefix  = optional(string)<br/>    logging_cookies = optional(bool, false)<br/>  }))</pre> | `[]` | no |
 | <a name="input_minimum_protocol_version"></a> [minimum\_protocol\_version](#input\_minimum\_protocol\_version) | (optional) tls minimum protocol version | `string` | `"TLSv1.2_2021"` | no |
 | <a name="input_name"></a> [name](#input\_name) | (optional) name of the distribution. Used as the default for DNS creation when configured | `string` | `null` | no |
-| <a name="input_ordered_cache_behavior"></a> [ordered\_cache\_behavior](#input\_ordered\_cache\_behavior) | (optional) an ordered list of cache behaviors resource for this distribution | <pre>list(object({<br/>    path_pattern     = string<br/>    target_origin_id = string<br/><br/>    cache_policy_id            = string<br/>    origin_request_policy_id   = optional(string)<br/>    response_headers_policy_id = optional(string)<br/><br/>    allowed_methods           = optional(list(string), ["GET", "HEAD"])<br/>    cached_methods            = optional(list(string), ["GET", "HEAD"])<br/>    compress                  = optional(bool, true)<br/>    field_level_encryption_id = optional(string)<br/>    viewer_protocol_policy    = optional(string, "redirect-to-https")<br/>    smooth_streaming          = optional(bool)<br/>    trusted_key_groups        = optional(list(string))<br/>    trusted_signers           = optional(list(string))<br/><br/>    lambda_function_associations = optional(list(object({<br/>      event_type   = optional(string, "viewer-request")<br/>      lambda_arn   = string<br/>      include_body = optional(bool, false)<br/>    })))<br/>    function_associations = optional(list(object({<br/>      event_type   = optional(string, "viewer-request")<br/>      function_arn = string<br/>    })))<br/>  }))</pre> | `[]` | no |
+| <a name="input_ordered_cache_behavior"></a> [ordered\_cache\_behavior](#input\_ordered\_cache\_behavior) | (optional) an ordered list of cache behaviors resource for this distribution | <pre>list(object({<br/>    path_pattern     = string<br/>    target_origin_id = string<br/><br/>    cache_policy_id            = optional(string)<br/>    origin_request_policy_id   = optional(string)<br/>    response_headers_policy_id = optional(string)<br/><br/>    forwarded_values = optional(object({<br/>      query_string            = bool<br/>      query_string_cache_keys = optional(list(string))<br/>      headers                 = optional(list(string))<br/>      cookies = object({<br/>        forward           = string<br/>        whitelisted_names = optional(list(string))<br/>      })<br/>    }))<br/><br/>    allowed_methods           = optional(list(string), ["GET", "HEAD"])<br/>    cached_methods            = optional(list(string), ["GET", "HEAD"])<br/>    compress                  = optional(bool, true)<br/>    field_level_encryption_id = optional(string)<br/>    viewer_protocol_policy    = optional(string, "redirect-to-https")<br/>    smooth_streaming          = optional(bool)<br/>    trusted_key_groups        = optional(list(string))<br/>    trusted_signers           = optional(list(string))<br/><br/>    min_ttl     = optional(number)<br/>    default_ttl = optional(number)<br/>    max_ttl     = optional(number)<br/><br/>    lambda_function_associations = optional(list(object({<br/>      event_type   = optional(string, "viewer-request")<br/>      lambda_arn   = string<br/>      include_body = optional(bool, false)<br/>    })))<br/>    function_associations = optional(list(object({<br/>      event_type   = optional(string, "viewer-request")<br/>      function_arn = string<br/>    })))<br/>  }))</pre> | `[]` | no |
 | <a name="input_price_class"></a> [price\_class](#input\_price\_class) | (optional) price class for the distribution | `string` | `"PriceClass_100"` | no |
 | <a name="input_restriction_locations"></a> [restriction\_locations](#input\_restriction\_locations) | (optional) locations to use in access restriction (whitelist or blacklist based on restriction\_type) | `list(string)` | `[]` | no |
 | <a name="input_restriction_type"></a> [restriction\_type](#input\_restriction\_type) | (optional) type of restriction for CDN | `string` | `"none"` | no |

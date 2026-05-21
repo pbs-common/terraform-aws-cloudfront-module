@@ -85,10 +85,29 @@ resource "aws_cloudfront_distribution" "cdn" {
     viewer_protocol_policy = var.viewer_protocol_policy
     compress               = var.compress
 
-    # Cache behavior policies
+    # Cache behavior policies (mutually exclusive with forwarded_values)
     cache_policy_id            = local.default_cache_policy_id
     origin_request_policy_id   = local.default_origin_request_policy_id
     response_headers_policy_id = local.default_response_headers_policy_id
+
+    # TTL settings (only used with forwarded_values)
+    min_ttl     = local.use_default_forwarded_values ? var.default_min_ttl : null
+    default_ttl = local.use_default_forwarded_values ? var.default_default_ttl : null
+    max_ttl     = local.use_default_forwarded_values ? var.default_max_ttl : null
+
+    dynamic "forwarded_values" {
+      for_each = var.default_forwarded_values != null ? [var.default_forwarded_values] : []
+      content {
+        query_string            = forwarded_values.value.query_string
+        query_string_cache_keys = forwarded_values.value.query_string_cache_keys
+        headers                 = forwarded_values.value.headers
+
+        cookies {
+          forward           = forwarded_values.value.cookies.forward
+          whitelisted_names = forwarded_values.value.cookies.whitelisted_names
+        }
+      }
+    }
 
     dynamic "lambda_function_association" {
       for_each = var.default_behavior_lambda_function_association != null ? [true] : []
@@ -122,9 +141,28 @@ resource "aws_cloudfront_distribution" "cdn" {
       trusted_key_groups         = behavior.value.trusted_key_groups
       trusted_signers            = behavior.value.trusted_signers
       viewer_protocol_policy     = behavior.value.viewer_protocol_policy
-      cache_policy_id            = behavior.value.cache_policy_id
-      origin_request_policy_id   = behavior.value.origin_request_policy_id
+      cache_policy_id            = behavior.value.forwarded_values != null ? null : behavior.value.cache_policy_id
+      origin_request_policy_id   = behavior.value.forwarded_values != null ? null : behavior.value.origin_request_policy_id
       response_headers_policy_id = behavior.value.response_headers_policy_id
+
+      min_ttl     = behavior.value.forwarded_values != null ? behavior.value.min_ttl : null
+      default_ttl = behavior.value.forwarded_values != null ? behavior.value.default_ttl : null
+      max_ttl     = behavior.value.forwarded_values != null ? behavior.value.max_ttl : null
+
+      dynamic "forwarded_values" {
+        for_each = behavior.value.forwarded_values != null ? [behavior.value.forwarded_values] : []
+        content {
+          query_string            = forwarded_values.value.query_string
+          query_string_cache_keys = forwarded_values.value.query_string_cache_keys
+          headers                 = forwarded_values.value.headers
+
+          cookies {
+            forward           = forwarded_values.value.cookies.forward
+            whitelisted_names = forwarded_values.value.cookies.whitelisted_names
+          }
+        }
+      }
+
       dynamic "lambda_function_association" {
         for_each = behavior.value.lambda_function_associations != null ? behavior.value.lambda_function_associations : []
         iterator = function_association
