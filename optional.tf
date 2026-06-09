@@ -64,7 +64,7 @@ variable "default_behavior_lambda_function_associations" {
   type = list(object({
     event_type   = string
     lambda_arn   = string
-    include_body = optional(bool)
+    include_body = optional(bool, false)
   }))
 }
 
