@@ -8,16 +8,16 @@ module "cloudfront" {
     s3_origin_config = module.s3.name
   }]
 
-  default_behavior_function_association = {
+  default_behavior_function_associations = [{
     event_type   = "viewer-request"
     function_arn = aws_cloudfront_function.function.arn
-  }
+  }]
 
-  default_behavior_lambda_function_association = {
+  default_behavior_lambda_function_associations = [{
     event_type   = "origin-response"
     lambda_arn   = aws_lambda_function.add_header.qualified_arn
     include_body = false
-  }
+  }]
 
   default_root_object = "index.html"
 

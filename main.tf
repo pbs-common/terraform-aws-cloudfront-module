@@ -110,19 +110,21 @@ resource "aws_cloudfront_distribution" "cdn" {
     }
 
     dynamic "lambda_function_association" {
-      for_each = var.default_behavior_lambda_function_association != null ? [true] : []
+      for_each = var.default_behavior_lambda_function_associations
+      iterator = lambda_function_association
       content {
-        event_type   = var.default_behavior_lambda_function_association.event_type
-        lambda_arn   = var.default_behavior_lambda_function_association.lambda_arn
-        include_body = var.default_behavior_lambda_function_association.include_body
+        event_type   = lambda_function_association.value.event_type
+        lambda_arn   = lambda_function_association.value.lambda_arn
+        include_body = lambda_function_association.value.include_body
       }
     }
 
     dynamic "function_association" {
-      for_each = var.default_behavior_function_association != null ? [true] : []
+      for_each = var.default_behavior_function_associations
+      iterator = function_association
       content {
-        event_type   = var.default_behavior_function_association.event_type
-        function_arn = var.default_behavior_function_association.function_arn
+        event_type   = function_association.value.event_type
+        function_arn = function_association.value.function_arn
       }
     }
   }

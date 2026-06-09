@@ -58,23 +58,23 @@ variable "default_origin_id" {
   type        = string
 }
 
-variable "default_behavior_lambda_function_association" {
-  description = "(optional) default behavior lambda function association"
-  default     = null
-  type = object({
+variable "default_behavior_lambda_function_associations" {
+  description = "(optional) default behavior lambda function associations"
+  default     = []
+  type = list(object({
     event_type   = string
     lambda_arn   = string
-    include_body = optional(bool)
-  })
+    include_body = optional(bool, false)
+  }))
 }
 
-variable "default_behavior_function_association" {
-  description = "(optional) default behavior function association"
-  default     = null
-  type = object({
+variable "default_behavior_function_associations" {
+  description = "(optional) default behavior function associations"
+  default     = []
+  type = list(object({
     event_type   = string
     function_arn = string
-  })
+  }))
 }
 
 variable "viewer_protocol_policy" {
