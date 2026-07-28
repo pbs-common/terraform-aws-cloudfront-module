@@ -9,10 +9,10 @@ variable "origins" {
     domain_name         = string
     connection_attempts = optional(number)
     connection_timeout  = optional(number)
-    custom_header = optional(object({
+    custom_headers = optional(list(object({
       name  = string
       value = string
-    }))
+    })))
     custom_origin_config = optional(object({
       http_port                = optional(number)
       https_port               = optional(number)
