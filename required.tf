@@ -13,6 +13,12 @@ variable "origins" {
       name  = string
       value = string
     })))
+    # Retained only to detect the removed `custom_header` attribute so it is not
+    # silently dropped during type conversion. See the validation block below.
+    custom_header = optional(object({
+      name  = string
+      value = string
+    }))
     custom_origin_config = optional(object({
       http_port                = optional(number)
       https_port               = optional(number)
@@ -29,4 +35,9 @@ variable "origins" {
       origin_shield_region = optional(string)
     }))
   }))
+
+  validation {
+    condition     = alltrue([for origin in var.origins : origin.custom_header == null])
+    error_message = "The `custom_header` attribute has been removed in favor of `custom_headers` (a list). Please rename `custom_header = { ... }` to `custom_headers = [{ ... }]` in each origin so your headers are not silently dropped."
+  }
 }
