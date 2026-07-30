@@ -14,7 +14,7 @@ locals {
   origin_access_control_id = aws_cloudfront_origin_access_control.oac.id
 
   # Default cache behavior policies
-  use_default_forwarded_values                = var.default_forwarded_values != null
+  use_default_forwarded_values              = var.default_forwarded_values != null
   lookup_default_cache_policy_id            = var.default_cache_policy_id == null && !local.use_default_forwarded_values
   default_cache_policy_id                   = local.use_default_forwarded_values ? null : var.default_cache_policy_id != null ? var.default_cache_policy_id : data.aws_cloudfront_cache_policy.cache_policy[0].id
   lookup_default_origin_request_policy_id   = var.default_origin_request_policy_id == null && var.default_origin_request_policy_name != null
