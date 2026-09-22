@@ -41,6 +41,25 @@ resource "aws_cloudfront_distribution" "cdn" {
     }
   }
 
+  dynamic "origin_group" {
+    for_each = var.origin_groups
+    iterator = group
+    content {
+      origin_id = group.value.origin_id
+
+      failover_criteria {
+        status_codes = group.value.failover_status_codes
+      }
+
+      dynamic "member" {
+        for_each = group.value.members
+        content {
+          origin_id = member.value
+        }
+      }
+    }
+  }
+
   enabled             = var.enabled
   is_ipv6_enabled     = var.is_ipv6_enabled
   comment             = local.comment
@@ -84,6 +103,8 @@ resource "aws_cloudfront_distribution" "cdn" {
 
     viewer_protocol_policy = var.viewer_protocol_policy
     compress               = var.compress
+
+    trusted_key_groups = var.default_behavior_trusted_key_groups
 
     # Cache behavior policies (mutually exclusive with forwarded_values)
     cache_policy_id            = local.default_cache_policy_id

@@ -1,9 +1,12 @@
 locals {
-  name                   = var.name != null ? var.name : var.product
-  cnames                 = var.cnames != null ? var.cnames : [local.name]
-  aliases                = var.aliases != null ? var.aliases : ["${local.name}.${var.primary_hosted_zone}"]
-  comment                = var.comment != null ? var.comment : "${local.aliases[0]} CDN."
-  primary_hosted_zone_id = data.aws_route53_zone.primary_hosted_zone.zone_id
+  name    = var.name != null ? var.name : var.product
+  cnames  = var.cnames != null ? var.cnames : [local.name]
+  aliases = var.aliases != null ? var.aliases : ["${local.name}.${var.primary_hosted_zone}"]
+  comment = var.comment != null ? var.comment : "${local.aliases[0]} CDN."
+  # The zone is only read when this module creates the DNS records; with DNS managed elsewhere
+  # there may be no zone of that name in the account to read.
+  lookup_hosted_zone     = var.create_cname && length(local.cnames) > 0
+  primary_hosted_zone_id = one(data.aws_route53_zone.primary_hosted_zone[*].zone_id)
   acm_arn                = var.acm_arn != null ? var.acm_arn : data.aws_acm_certificate.primary_acm_wildcard_cert[0].arn
 
   # The following try is a workaround to prevent errors during destroy
