@@ -1,5 +1,6 @@
 data "aws_route53_zone" "primary_hosted_zone" {
-  name = "${var.primary_hosted_zone}."
+  count = local.lookup_hosted_zone ? 1 : 0
+  name  = "${var.primary_hosted_zone}."
 }
 
 data "aws_acm_certificate" "primary_acm_wildcard_cert" {

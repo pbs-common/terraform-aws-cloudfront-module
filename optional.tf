@@ -296,3 +296,85 @@ variable "v2_logging" {
     record_fields               = optional(list(string))
   })
 }
+
+variable "origin_groups" {
+  description = <<EOT
+(optional) Origin groups for failover between two origins.
+
+Each group gives CloudFront a primary and a secondary origin: a request that gets one of
+`failover_status_codes` from the first member is retried against the second. Point a behavior at
+the group by using the group's `origin_id` as `default_origin_id` or as a behavior's
+`target_origin_id`.
+
+Both `members` must be `origin_id`s of origins declared in `origins`, in priority order, and a
+group takes exactly two.
+
+```hcl
+origin_groups = [
+  {
+    origin_id             = "failover-group"
+    failover_status_codes = [403, 404]
+    members               = ["own-bucket", "fallback-bucket"]
+  }
+]
+```
+EOT
+  default     = []
+  type = list(object({
+    origin_id             = string
+    failover_status_codes = list(number)
+    members               = list(string)
+  }))
+
+  validation {
+    condition     = alltrue([for g in var.origin_groups : length(g.members) == 2])
+    error_message = "Each origin group must have exactly two members: the primary origin followed by the failover origin."
+  }
+
+  validation {
+    condition     = alltrue([for g in var.origin_groups : length(distinct(g.members)) == 2])
+    error_message = "An origin group's two members must be different origins."
+  }
+
+  validation {
+    condition     = alltrue([for g in var.origin_groups : length(g.failover_status_codes) > 0])
+    error_message = "Each origin group must list at least one failover status code."
+  }
+
+  validation {
+    condition     = alltrue([for g in var.origin_groups : alltrue([for c in g.failover_status_codes : contains([400, 403, 404, 416, 500, 502, 503, 504], c)])])
+    error_message = "CloudFront only fails over on status codes 400, 403, 404, 416, 500, 502, 503 and 504."
+  }
+
+  validation {
+    condition     = length(distinct([for g in var.origin_groups : g.origin_id])) == length(var.origin_groups)
+    error_message = "Each origin group's origin_id must be unique."
+  }
+}
+
+variable "default_behavior_trusted_key_groups" {
+  description = "(optional) Key groups whose public keys CloudFront uses to verify the signatures of signed URLs and signed cookies on the default cache behavior. When set, the default behavior serves only signed requests. `ordered_cache_behavior` entries carry their own `trusted_key_groups`."
+  default     = null
+  type        = list(string)
+}
+
+variable "primary_hosted_zone" {
+  description = "(optional) Name of the primary hosted zone for DNS. e.g. primary_hosted_zone = example.org --> service.example.org. Required unless DNS is managed elsewhere: set it to null only when `create_cname` is false, `aliases` are given explicitly, and `acm_arn` is supplied, since each of those otherwise derives from the zone name."
+  default     = null
+  type        = string
+
+  validation {
+    condition     = var.primary_hosted_zone != null || !var.create_cname
+    error_message = "A primary_hosted_zone is required to create CNAME records. Set create_cname = false if DNS is managed elsewhere."
+  }
+
+  validation {
+    condition     = var.primary_hosted_zone != null || var.aliases != null
+    error_message = "A primary_hosted_zone is required to derive the distribution's aliases. Pass aliases explicitly if DNS is managed elsewhere."
+  }
+
+  validation {
+    condition     = var.primary_hosted_zone != null || var.acm_arn != null
+    error_message = "A primary_hosted_zone is required to look up the wildcard ACM certificate. Pass acm_arn explicitly if DNS is managed elsewhere."
+  }
+}
