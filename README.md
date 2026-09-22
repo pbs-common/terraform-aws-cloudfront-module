@@ -7,7 +7,7 @@
 Use this URL for the source of the module. See the usage examples below for more details.
 
 ```hcl
-github.com/pbs/terraform-aws-cloudfront-module?ref=6.0.0
+github.com/pbs/terraform-aws-cloudfront-module?ref=x.y.z
 ```
 
 ### Alternative Installation Methods
@@ -24,7 +24,7 @@ Integrate this module like so:
 
 ```hcl
 module "cloudfront" {
-  source = "github.com/pbs/terraform-aws-cloudfront-module?ref=6.0.0"
+  source = "github.com/pbs/terraform-aws-cloudfront-module?ref=x.y.z"
 
   # Required Parameters
   primary_hosted_zone = "example.com"
@@ -52,11 +52,39 @@ module "cloudfront" {
 }
 ```
 
+### Origin groups
+
+`origin_groups` gives CloudFront a primary and a failover origin: a request answered by the first member with one of `failover_status_codes` is retried against the second. Point a behavior at the group by using the group's `origin_id` as `default_origin_id`, or as a behavior's `target_origin_id`.
+
+```hcl
+origin_groups = [
+  {
+    origin_id             = "failover-group"
+    failover_status_codes = [403, 404]
+    members               = ["own-bucket", "fallback-bucket"]
+  }
+]
+
+default_origin_id = "failover-group"
+```
+
+Both members must be `origin_id`s of origins declared in `origins`, in priority order, and a group takes exactly two. See [the origin-group example](/examples/origin-group).
+
+### Signed URLs
+
+`default_behavior_trusted_key_groups` sets the key groups whose public keys CloudFront uses to verify signed URLs and signed cookies on the default behavior, so that behavior serves only signed requests. `ordered_cache_behavior` entries carry their own `trusted_key_groups`.
+
+### DNS
+
+By default this module creates the distribution's CNAME records and derives both the aliases and the wildcard ACM certificate from `primary_hosted_zone`.
+
+`primary_hosted_zone` is optional, for the case where DNS is managed outside this module — but leaving it null means supplying everything that otherwise comes from it: `create_cname = false`, explicit `aliases`, and an explicit `acm_arn`. Variable validation will tell you which of the three is missing. The hosted zone itself is only read when the module creates records, so no zone of that name needs to exist in the account otherwise.
+
 ## Adding This Version of the Module
 
 If this repo is added as a subtree, then the version of the module should be close to the version shown here:
 
-`6.0.0`
+`x.y.z`
 
 Note, however that subtrees can be altered as desired within repositories.
 
@@ -79,7 +107,7 @@ Below is automatically generated documentation on this Terraform module using [t
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.54.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.62.0 |
 
 ## Modules
 
@@ -110,7 +138,6 @@ No modules.
 | <a name="input_organization"></a> [organization](#input\_organization) | Organization using this module. Used to prefix tags so that they are easily identified as being from your organization | `string` | n/a | yes |
 | <a name="input_origins"></a> [origins](#input\_origins) | One or more origins for this distribution. | <pre>list(object({<br/>    domain_name         = string<br/>    connection_attempts = optional(number)<br/>    connection_timeout  = optional(number)<br/>    custom_headers = optional(list(object({<br/>      name  = string<br/>      value = string<br/>    })))<br/>    # Retained only to detect the removed `custom_header` attribute so it is not<br/>    # silently dropped during type conversion. See the validation block below.<br/>    custom_header = optional(object({<br/>      name  = string<br/>      value = string<br/>    }))<br/>    custom_origin_config = optional(object({<br/>      http_port                = optional(number)<br/>      https_port               = optional(number)<br/>      origin_keepalive_timeout = optional(number)<br/>      origin_protocol_policy   = optional(string)<br/>      origin_read_timeout      = optional(number)<br/>      origin_ssl_protocols     = optional(list(string))<br/>    }))<br/>    origin_path      = optional(string)<br/>    origin_id        = optional(string)<br/>    s3_origin_config = optional(string)<br/>    origin_shield = optional(object({<br/>      enabled              = optional(bool)<br/>      origin_shield_region = optional(string)<br/>    }))<br/>  }))</pre> | n/a | yes |
 | <a name="input_owner"></a> [owner](#input\_owner) | Tag used to group resources according to product | `string` | n/a | yes |
-| <a name="input_primary_hosted_zone"></a> [primary\_hosted\_zone](#input\_primary\_hosted\_zone) | Name of the primary hosted zone for DNS. e.g. primary\_hosted\_zone = example.org --> service.example.org. | `string` | n/a | yes |
 | <a name="input_product"></a> [product](#input\_product) | Tag used to group resources according to product | `string` | n/a | yes |
 | <a name="input_repo"></a> [repo](#input\_repo) | Tag used to point to the repo using this module | `string` | n/a | yes |
 | <a name="input_acm_arn"></a> [acm\_arn](#input\_acm\_arn) | (optional) ARN for the ACM cert used for the CloudFront distribution | `string` | `null` | no |
@@ -125,6 +152,7 @@ No modules.
 | <a name="input_default_behavior_cached_methods"></a> [default\_behavior\_cached\_methods](#input\_default\_behavior\_cached\_methods) | (optional) default behavior cached methods | `list(string)` | <pre>[<br/>  "GET",<br/>  "HEAD"<br/>]</pre> | no |
 | <a name="input_default_behavior_function_associations"></a> [default\_behavior\_function\_associations](#input\_default\_behavior\_function\_associations) | (optional) default behavior function associations | <pre>list(object({<br/>    event_type   = string<br/>    function_arn = string<br/>  }))</pre> | `[]` | no |
 | <a name="input_default_behavior_lambda_function_associations"></a> [default\_behavior\_lambda\_function\_associations](#input\_default\_behavior\_lambda\_function\_associations) | (optional) default behavior lambda function associations | <pre>list(object({<br/>    event_type   = string<br/>    lambda_arn   = string<br/>    include_body = optional(bool, false)<br/>  }))</pre> | `[]` | no |
+| <a name="input_default_behavior_trusted_key_groups"></a> [default\_behavior\_trusted\_key\_groups](#input\_default\_behavior\_trusted\_key\_groups) | (optional) Key groups whose public keys CloudFront uses to verify the signatures of signed URLs and signed cookies on the default cache behavior. When set, the default behavior serves only signed requests. `ordered_cache_behavior` entries carry their own `trusted_key_groups`. | `list(string)` | `null` | no |
 | <a name="input_default_cache_policy_id"></a> [default\_cache\_policy\_id](#input\_default\_cache\_policy\_id) | (optional) policy id for the cache policy of the default cache behavior. If null, a lookup on default\_cache\_policy\_name will be attempted. Ignored when default\_forwarded\_values is set. | `string` | `null` | no |
 | <a name="input_default_cache_policy_name"></a> [default\_cache\_policy\_name](#input\_default\_cache\_policy\_name) | (optional) policy name for the cache policy of the default cache behavior | `string` | `"Managed-CachingDisabled"` | no |
 | <a name="input_default_default_ttl"></a> [default\_default\_ttl](#input\_default\_default\_ttl) | (optional) default TTL for the default cache behavior. Only used with default\_forwarded\_values. | `number` | `86400` | no |
@@ -145,7 +173,9 @@ No modules.
 | <a name="input_minimum_protocol_version"></a> [minimum\_protocol\_version](#input\_minimum\_protocol\_version) | (optional) tls minimum protocol version | `string` | `"TLSv1.2_2021"` | no |
 | <a name="input_name"></a> [name](#input\_name) | (optional) name of the distribution. Used as the default for DNS creation when configured | `string` | `null` | no |
 | <a name="input_ordered_cache_behavior"></a> [ordered\_cache\_behavior](#input\_ordered\_cache\_behavior) | (optional) an ordered list of cache behaviors resource for this distribution | <pre>list(object({<br/>    path_pattern     = string<br/>    target_origin_id = string<br/><br/>    cache_policy_id            = optional(string)<br/>    origin_request_policy_id   = optional(string)<br/>    response_headers_policy_id = optional(string)<br/><br/>    forwarded_values = optional(object({<br/>      query_string            = bool<br/>      query_string_cache_keys = optional(list(string))<br/>      headers                 = optional(list(string))<br/>      cookies = object({<br/>        forward           = string<br/>        whitelisted_names = optional(list(string))<br/>      })<br/>    }))<br/><br/>    allowed_methods           = optional(list(string), ["GET", "HEAD"])<br/>    cached_methods            = optional(list(string), ["GET", "HEAD"])<br/>    compress                  = optional(bool, true)<br/>    field_level_encryption_id = optional(string)<br/>    viewer_protocol_policy    = optional(string, "redirect-to-https")<br/>    smooth_streaming          = optional(bool)<br/>    trusted_key_groups        = optional(list(string))<br/>    trusted_signers           = optional(list(string))<br/><br/>    min_ttl     = optional(number)<br/>    default_ttl = optional(number)<br/>    max_ttl     = optional(number)<br/><br/>    lambda_function_associations = optional(list(object({<br/>      event_type   = optional(string, "viewer-request")<br/>      lambda_arn   = string<br/>      include_body = optional(bool, false)<br/>    })))<br/>    function_associations = optional(list(object({<br/>      event_type   = optional(string, "viewer-request")<br/>      function_arn = string<br/>    })))<br/>  }))</pre> | `[]` | no |
+| <a name="input_origin_groups"></a> [origin\_groups](#input\_origin\_groups) | (optional) Origin groups for failover between two origins.<br/><br/>Each group gives CloudFront a primary and a secondary origin: a request that gets one of<br/>`failover_status_codes` from the first member is retried against the second. Point a behavior at<br/>the group by using the group's `origin_id` as `default_origin_id` or as a behavior's<br/>`target_origin_id`.<br/><br/>Both `members` must be `origin_id`s of origins declared in `origins`, in priority order, and a<br/>group takes exactly two.<pre>hcl<br/>origin_groups = [<br/>  {<br/>    origin_id             = "failover-group"<br/>    failover_status_codes = [403, 404]<br/>    members               = ["own-bucket", "fallback-bucket"]<br/>  }<br/>]</pre> | <pre>list(object({<br/>    origin_id             = string<br/>    failover_status_codes = list(number)<br/>    members               = list(string)<br/>  }))</pre> | `[]` | no |
 | <a name="input_price_class"></a> [price\_class](#input\_price\_class) | (optional) price class for the distribution | `string` | `"PriceClass_100"` | no |
+| <a name="input_primary_hosted_zone"></a> [primary\_hosted\_zone](#input\_primary\_hosted\_zone) | (optional) Name of the primary hosted zone for DNS. e.g. primary\_hosted\_zone = example.org --> service.example.org. Required unless DNS is managed elsewhere: set it to null only when `create_cname` is false, `aliases` are given explicitly, and `acm_arn` is supplied, since each of those otherwise derives from the zone name. | `string` | `null` | no |
 | <a name="input_restriction_locations"></a> [restriction\_locations](#input\_restriction\_locations) | (optional) locations to use in access restriction (whitelist or blacklist based on restriction\_type) | `list(string)` | `[]` | no |
 | <a name="input_restriction_type"></a> [restriction\_type](#input\_restriction\_type) | (optional) type of restriction for CDN | `string` | `"none"` | no |
 | <a name="input_ssl_support_method"></a> [ssl\_support\_method](#input\_ssl\_support\_method) | (optional) ssl support method (one of vip or sni-only) | `string` | `"sni-only"` | no |
