@@ -18,7 +18,7 @@ More information can be found on these install methods and more in [the document
 
 This module creates a CloudFront distribution.
 
-If configured to integrate with an S3 bucket, an origin access identity will be configured for the bucket.
+If configured to integrate with an S3 bucket (`s3_origin_config` set on an origin), the module's origin access control will be attached to that origin.
 
 Integrate this module like so:
 
@@ -69,6 +69,20 @@ default_origin_id = "failover-group"
 ```
 
 Both members must be `origin_id`s of origins declared in `origins`, in priority order, and a group takes exactly two. See [the origin-group example](/examples/origin-group).
+
+### Legacy origin access identity
+
+S3 origins use the module's origin access control (OAC) by default. To keep an existing origin access identity (OAI) instead — for example on a distribution being imported whose bucket policy still trusts an OAI — set `origin_access_identity` on that origin to the OAI's path. The OAC is then not attached to that origin.
+
+```hcl
+origins = [{
+  domain_name            = module.s3.regional_domain_name
+  s3_origin_config       = module.s3.name
+  origin_access_identity = aws_cloudfront_origin_access_identity.oai.cloudfront_access_identity_path
+}]
+```
+
+The bucket policy must grant the OAI's `iam_arn` access to the objects. See [the S3 OAI example](/examples/s3-oai).
 
 ### Signed URLs
 
