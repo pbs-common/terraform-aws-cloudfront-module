@@ -25,6 +25,9 @@ variable "origins" {
     origin_path      = optional(string)
     origin_id        = optional(string)
     s3_origin_config = optional(string)
+    # Legacy Origin Access Identity path (origin-access-identity/cloudfront/<ID>).
+    # When set, used for this S3 origin instead of the module's Origin Access Control.
+    origin_access_identity = optional(string)
     origin_shield = optional(object({
       enabled              = optional(bool)
       origin_shield_region = optional(string)
@@ -34,5 +37,15 @@ variable "origins" {
   validation {
     condition     = alltrue([for origin in var.origins : origin.custom_header == null])
     error_message = "The `custom_header` attribute has been removed in favor of `custom_headers` (a list). Please rename `custom_header = { ... }` to `custom_headers = [{ ... }]` in each origin so your headers are not silently dropped."
+  }
+
+  validation {
+    condition     = alltrue([for origin in var.origins : origin.origin_access_identity == null || origin.s3_origin_config != null])
+    error_message = "`origin_access_identity` only applies to S3 origins. Set `s3_origin_config` on every origin that sets `origin_access_identity`."
+  }
+
+  validation {
+    condition     = alltrue([for origin in var.origins : origin.origin_access_identity == null ? true : can(regex("^origin-access-identity/cloudfront/[A-Z0-9]+$", origin.origin_access_identity))])
+    error_message = "`origin_access_identity` must be an OAI path like `origin-access-identity/cloudfront/E2QWRUHEXAMPLE` (the OAI's `cloudfront_access_identity_path`), not a bare ID or IAM ARN."
   }
 }

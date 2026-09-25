@@ -14,7 +14,7 @@ output "domain_name" {
 }
 
 output "oac_id" {
-  description = "ID of the origin access identity"
+  description = "ID of the origin access control"
   value       = local.origin_access_control_id
 }
 

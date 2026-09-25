@@ -7,7 +7,7 @@
 Use this URL for the source of the module. See the usage examples below for more details.
 
 ```hcl
-github.com/pbs/terraform-aws-cloudfront-module?ref=6.0.1
+github.com/pbs/terraform-aws-cloudfront-module?ref=x.y.z
 ```
 
 ### Alternative Installation Methods
@@ -18,13 +18,13 @@ More information can be found on these install methods and more in [the document
 
 This module creates a CloudFront distribution.
 
-If configured to integrate with an S3 bucket, an origin access identity will be configured for the bucket.
+If configured to integrate with an S3 bucket (`s3_origin_config` set on an origin), the module's origin access control will be attached to that origin.
 
 Integrate this module like so:
 
 ```hcl
 module "cloudfront" {
-  source = "github.com/pbs/terraform-aws-cloudfront-module?ref=6.0.1"
+  source = "github.com/pbs/terraform-aws-cloudfront-module?ref=x.y.z"
 
   # Required Parameters
   primary_hosted_zone = "example.com"
@@ -70,6 +70,20 @@ default_origin_id = "failover-group"
 
 Both members must be `origin_id`s of origins declared in `origins`, in priority order, and a group takes exactly two. See [the origin-group example](/examples/origin-group).
 
+### Legacy origin access identity
+
+S3 origins use the module's origin access control (OAC) by default. To keep an existing origin access identity (OAI) instead — for example on a distribution being imported whose bucket policy still trusts an OAI — set `origin_access_identity` on that origin to the OAI's path. The OAC is then not attached to that origin.
+
+```hcl
+origins = [{
+  domain_name            = module.s3.regional_domain_name
+  s3_origin_config       = module.s3.name
+  origin_access_identity = aws_cloudfront_origin_access_identity.oai.cloudfront_access_identity_path
+}]
+```
+
+The bucket policy must grant the OAI's `iam_arn` access to the objects. See [the S3 OAI example](/examples/s3-oai).
+
 ### Signed URLs
 
 `default_behavior_trusted_key_groups` sets the key groups whose public keys CloudFront uses to verify signed URLs and signed cookies on the default behavior, so that behavior serves only signed requests. `ordered_cache_behavior` entries carry their own `trusted_key_groups`.
@@ -84,7 +98,7 @@ By default this module creates the distribution's CNAME records and derives both
 
 If this repo is added as a subtree, then the version of the module should be close to the version shown here:
 
-`6.0.1`
+`x.y.z`
 
 Note, however that subtrees can be altered as desired within repositories.
 
@@ -136,7 +150,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment (sharedtools, dev, staging, qa, prod) | `string` | n/a | yes |
 | <a name="input_organization"></a> [organization](#input\_organization) | Organization using this module. Used to prefix tags so that they are easily identified as being from your organization | `string` | n/a | yes |
-| <a name="input_origins"></a> [origins](#input\_origins) | One or more origins for this distribution. | <pre>list(object({<br/>    domain_name         = string<br/>    connection_attempts = optional(number)<br/>    connection_timeout  = optional(number)<br/>    custom_headers = optional(list(object({<br/>      name  = string<br/>      value = string<br/>    })))<br/>    # Retained only to detect the removed `custom_header` attribute so it is not<br/>    # silently dropped during type conversion. See the validation block below.<br/>    custom_header = optional(object({<br/>      name  = string<br/>      value = string<br/>    }))<br/>    custom_origin_config = optional(object({<br/>      http_port                = optional(number)<br/>      https_port               = optional(number)<br/>      origin_keepalive_timeout = optional(number)<br/>      origin_protocol_policy   = optional(string)<br/>      origin_read_timeout      = optional(number)<br/>      origin_ssl_protocols     = optional(list(string))<br/>    }))<br/>    origin_path      = optional(string)<br/>    origin_id        = optional(string)<br/>    s3_origin_config = optional(string)<br/>    origin_shield = optional(object({<br/>      enabled              = optional(bool)<br/>      origin_shield_region = optional(string)<br/>    }))<br/>  }))</pre> | n/a | yes |
+| <a name="input_origins"></a> [origins](#input\_origins) | One or more origins for this distribution. | <pre>list(object({<br/>    domain_name         = string<br/>    connection_attempts = optional(number)<br/>    connection_timeout  = optional(number)<br/>    custom_headers = optional(list(object({<br/>      name  = string<br/>      value = string<br/>    })))<br/>    # Retained only to detect the removed `custom_header` attribute so it is not<br/>    # silently dropped during type conversion. See the validation block below.<br/>    custom_header = optional(object({<br/>      name  = string<br/>      value = string<br/>    }))<br/>    custom_origin_config = optional(object({<br/>      http_port                = optional(number)<br/>      https_port               = optional(number)<br/>      origin_keepalive_timeout = optional(number)<br/>      origin_protocol_policy   = optional(string)<br/>      origin_read_timeout      = optional(number)<br/>      origin_ssl_protocols     = optional(list(string))<br/>    }))<br/>    origin_path      = optional(string)<br/>    origin_id        = optional(string)<br/>    s3_origin_config = optional(string)<br/>    # Legacy Origin Access Identity path (origin-access-identity/cloudfront/<ID>).<br/>    # When set, used for this S3 origin instead of the module's Origin Access Control.<br/>    origin_access_identity = optional(string)<br/>    origin_shield = optional(object({<br/>      enabled              = optional(bool)<br/>      origin_shield_region = optional(string)<br/>    }))<br/>  }))</pre> | n/a | yes |
 | <a name="input_owner"></a> [owner](#input\_owner) | Tag used to group resources according to product | `string` | n/a | yes |
 | <a name="input_product"></a> [product](#input\_product) | Tag used to group resources according to product | `string` | n/a | yes |
 | <a name="input_repo"></a> [repo](#input\_repo) | Tag used to point to the repo using this module | `string` | n/a | yes |
@@ -192,4 +206,4 @@ No modules.
 | <a name="output_default_cache_policy_id"></a> [default\_cache\_policy\_id](#output\_default\_cache\_policy\_id) | The default cache policy ID |
 | <a name="output_domain_name"></a> [domain\_name](#output\_domain\_name) | One domain name that will resolve to this cdn. Might not be a valid alias. |
 | <a name="output_id"></a> [id](#output\_id) | ID of the CloudFront distribution |
-| <a name="output_oac_id"></a> [oac\_id](#output\_oac\_id) | ID of the origin access identity |
+| <a name="output_oac_id"></a> [oac\_id](#output\_oac\_id) | ID of the origin access control |
