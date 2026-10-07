@@ -206,9 +206,29 @@ variable "web_acl_id" {
 }
 
 variable "dns_evaluate_target_health" {
-  description = "(optional) evaluate health of endpoints by querying DNS records"
+  description = "(optional) evaluate health of endpoints by querying DNS records. Only applies when `dns_record_type` is `A`"
   default     = false
   type        = bool
+}
+
+variable "dns_record_type" {
+  description = "(optional) type of the DNS record(s) created for the cdn. `A` creates alias records to the distribution, `CNAME` creates standard CNAME records pointing at the distribution's domain name"
+  default     = "A"
+  type        = string
+  validation {
+    condition     = contains(["A", "CNAME"], var.dns_record_type)
+    error_message = "The dns_record_type variable must be one of [A, CNAME]."
+  }
+}
+
+variable "dns_ttl" {
+  description = "(optional) TTL in seconds of the DNS record(s). Only applies when `dns_record_type` is `CNAME`"
+  default     = 300
+  type        = number
+  validation {
+    condition     = var.dns_ttl >= 0
+    error_message = "The dns_ttl variable must be a non-negative number."
+  }
 }
 
 variable "default_forwarded_values" {
