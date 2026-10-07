@@ -7,7 +7,7 @@
 Use this URL for the source of the module. See the usage examples below for more details.
 
 ```hcl
-github.com/pbs/terraform-aws-cloudfront-module?ref=6.0.2
+github.com/pbs/terraform-aws-cloudfront-module?ref=x.y.z
 ```
 
 ### Alternative Installation Methods
@@ -24,7 +24,7 @@ Integrate this module like so:
 
 ```hcl
 module "cloudfront" {
-  source = "github.com/pbs/terraform-aws-cloudfront-module?ref=6.0.2"
+  source = "github.com/pbs/terraform-aws-cloudfront-module?ref=x.y.z"
 
   # Required Parameters
   primary_hosted_zone = "example.com"
@@ -92,13 +92,15 @@ The bucket policy must grant the OAI's `iam_arn` access to the objects. See [the
 
 By default this module creates the distribution's CNAME records and derives both the aliases and the wildcard ACM certificate from `primary_hosted_zone`.
 
+The records are alias `A` records by default. Set `dns_record_type = "CNAME"` to create standard CNAME records pointing at the distribution's domain name instead, with a TTL of `dns_ttl` (default `300`). `dns_evaluate_target_health` only applies to `A` records. Note that switching the type of an existing deployment replaces the records, and a CNAME cannot be created at the zone apex.
+
 `primary_hosted_zone` is optional, for the case where DNS is managed outside this module — but leaving it null means supplying everything that otherwise comes from it: `create_cname = false`, explicit `aliases`, and an explicit `acm_arn`. Variable validation will tell you which of the three is missing. The hosted zone itself is only read when the module creates records, so no zone of that name needs to exist in the account otherwise.
 
 ## Adding This Version of the Module
 
 If this repo is added as a subtree, then the version of the module should be close to the version shown here:
 
-`6.0.2`
+`x.y.z`
 
 Note, however that subtrees can be altered as desired within repositories.
 
@@ -121,7 +123,7 @@ Below is automatically generated documentation on this Terraform module using [t
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.62.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.67.0 |
 
 ## Modules
 
@@ -179,7 +181,9 @@ No modules.
 | <a name="input_default_response_headers_policy_id"></a> [default\_response\_headers\_policy\_id](#input\_default\_response\_headers\_policy\_id) | (optional) policy id for the response headers policy of the default cache behavior. If null, a lookup on default\_response\_headers\_policy\_name will be attempted. | `string` | `null` | no |
 | <a name="input_default_response_headers_policy_name"></a> [default\_response\_headers\_policy\_name](#input\_default\_response\_headers\_policy\_name) | (optional) policy name for the response headers policy of the default cache behavior | `string` | `null` | no |
 | <a name="input_default_root_object"></a> [default\_root\_object](#input\_default\_root\_object) | (optional) default root object to be served from cdn. e.g. index.hml | `string` | `null` | no |
-| <a name="input_dns_evaluate_target_health"></a> [dns\_evaluate\_target\_health](#input\_dns\_evaluate\_target\_health) | (optional) evaluate health of endpoints by querying DNS records | `bool` | `false` | no |
+| <a name="input_dns_evaluate_target_health"></a> [dns\_evaluate\_target\_health](#input\_dns\_evaluate\_target\_health) | (optional) evaluate health of endpoints by querying DNS records. Only applies when `dns_record_type` is `A` | `bool` | `false` | no |
+| <a name="input_dns_record_type"></a> [dns\_record\_type](#input\_dns\_record\_type) | (optional) type of the DNS record(s) created for the cdn. `A` creates alias records to the distribution, `CNAME` creates standard CNAME records pointing at the distribution's domain name | `string` | `"A"` | no |
+| <a name="input_dns_ttl"></a> [dns\_ttl](#input\_dns\_ttl) | (optional) TTL in seconds of the DNS record(s). Only applies when `dns_record_type` is `CNAME` | `number` | `300` | no |
 | <a name="input_enabled"></a> [enabled](#input\_enabled) | (optional) enable cloudfront | `bool` | `true` | no |
 | <a name="input_http_version"></a> [http\_version](#input\_http\_version) | (optional) The maximum HTTP version to support on the distribution. Allowed values are http1.1, http2, http2and3 and http3. | `string` | `"http2and3"` | no |
 | <a name="input_is_ipv6_enabled"></a> [is\_ipv6\_enabled](#input\_is\_ipv6\_enabled) | (optional) enable ipv6 | `bool` | `true` | no |

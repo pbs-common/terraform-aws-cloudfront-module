@@ -92,6 +92,8 @@ The bucket policy must grant the OAI's `iam_arn` access to the objects. See [the
 
 By default this module creates the distribution's CNAME records and derives both the aliases and the wildcard ACM certificate from `primary_hosted_zone`.
 
+The records are alias `A` records by default. Set `dns_record_type = "CNAME"` to create standard CNAME records pointing at the distribution's domain name instead, with a TTL of `dns_ttl` (default `300`). `dns_evaluate_target_health` only applies to `A` records. Note that switching the type of an existing deployment replaces the records, and a CNAME cannot be created at the zone apex.
+
 `primary_hosted_zone` is optional, for the case where DNS is managed outside this module — but leaving it null means supplying everything that otherwise comes from it: `create_cname = false`, explicit `aliases`, and an explicit `acm_arn`. Variable validation will tell you which of the three is missing. The hosted zone itself is only read when the module creates records, so no zone of that name needs to exist in the account otherwise.
 
 ## Adding This Version of the Module
